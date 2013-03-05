@@ -27,8 +27,8 @@ Knuckles.js is not another JS Framework, its just a tool im using to learn how t
 - Build a Basic Router
 - Bring Relationships between View & Collections
 - Comment out the extender 
-~~Create events system~~
-~~Collection -> Model relationships~~
+- ~~Create events system~~
+- ~~Collection -> Model relationships~~
 
 
 
