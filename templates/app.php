@@ -19,16 +19,45 @@
 <script type="text/javascript">
 	
 	var me = Knuckles.View.extend({
+
 		initialize : function () {
-			console.log('hello world');
+			//console.log('hello world');
 		},
+
 		render : function() {
-			var text = this.el.text('Hello World!');
+			var me = $('<div />').addClass('me').text('Hello World!');
+			var text = this.el.append(me);
 			$('body').append(text);
+		},
+
+		events : {
+			"click .me" : "alertMe"
+		},
+
+		alertMe : function() {
+			alert('OMG!');
+			console.log('Event Fired!');
 		}
+
 	});
 
 	var homeView = new me().render();
+
+
+	var user = Knuckles.Model.extend({
+		defaults : {
+			'Name' : 'Username'
+		}
+	});
+
+	var users = Knuckles.Collection.extend({
+		url : '/users',
+		model : user
+	});
+
+
+	var dash = new users().fetch();
+
 
 </script>
 

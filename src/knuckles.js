@@ -17,6 +17,27 @@
 		Knuckles = root.Knuckles = {};
 
 
+	/*
+	|--------------------------------------------------------------------------
+	| EVENTS
+	|--------------------------------------------------------------------------
+	*/
+
+	var Events = Knuckles.Events =  {
+
+		events : {},
+
+		setEv : function() {
+			var thiz = this;
+			$.each(this.events, function(key, val) { 
+			  var params = key.split(" ");
+			  $(thiz.el).on(params[0], params[1], thiz[val]);
+			});
+		}
+
+	};
+
+
 
 	/*
 	|--------------------------------------------------------------------------
@@ -26,17 +47,14 @@
 
 	var Model = Knuckles.Model = function() {
 		this.initialize();
+		this.setEv();
 	}
 
-	$.extend(Model.prototype, {
+	$.extend(Model.prototype, Events, {
 
-		initialize: function(){ 
-			console.log('Initialized...');
-		}
+		initialize: function(){}
 
 	});
-
-
 
 
 	/*
@@ -46,14 +64,42 @@
 	*/
 
 
-	var Collection = Knuckles.Collection = function() {
+	var Collection = Knuckles.Collection = function(options) {
 		this.initialize();
+		this.setEv();
 	}
 
-	$.extend(Collection.prototype, {
+	$.extend(Collection.prototype, Events, {
 
-		initialize: function(){
-			console.log('Initialized...');
+		model : Model,
+
+		models : {},
+
+		initialize: function(){},
+
+		url : false,
+
+		fetch : function() {
+
+			var thiz = this;
+
+			$.ajax({
+				url: this.url,
+				dataType : 'json',
+				success : function(data) {
+					$.each(data, function(id, model) {
+						thiz.add(id, model);
+					});
+				}
+			});
+
+
+		},
+
+		add : function(id, data) {
+			// create each model and add them to the collection
+			var model = new this.model(data);
+			this.models[id] = model;
 		}
 
 	});
@@ -69,17 +115,16 @@
 
 	var View = Knuckles.View = function() {
 		this.initialize();
+		this.setEv();
 	}
 
-	$.extend(View.prototype, {
+	$.extend(View.prototype, Events, {
 
 		el : $('<div />'),
 
 		render : function() {},
 
-		initialize: function(){
-			console.log('Initialized...');
-		}
+		initialize : function(){}
 
 	});
 
@@ -117,6 +162,7 @@
 		return child;
 
 	};
+
 
 	Model.extend = Collection.extend = View.extend = extend;
 
