@@ -10,7 +10,7 @@
 */
  
 
-;(function(window, document, $, undefined){
+;(function(window, document, undefined){
 
 
 	var root = this,
@@ -28,10 +28,10 @@
 		events : {},
 
 		setEv : function() {
-			var thiz = this;
+			var self = this;
 			$.each(this.events, function(key, val) { 
 			  var params = key.split(" ");
-			  $(thiz.el).on(params[0], params[1], thiz[val]);
+			  $(self.el).on(params[0], params[1], self[val]);
 			});
 		}
 
@@ -50,9 +50,21 @@
 		this.setEv();
 	}
 
-	$.extend(Model.prototype, Events, {
+	_.extend(Model.prototype, Events, {
 
-		initialize: function(){}
+		attributes : {},
+
+		initialize: function(){},
+
+		get : function(key) {
+			return this.attributes[key];
+		},
+
+		set : function(key, value) {
+			return this.attributes[key] = value;
+			// send ajax REST update
+			// transmit data updated event
+		}
 
 	});
 
@@ -69,7 +81,7 @@
 		this.setEv();
 	}
 
-	$.extend(Collection.prototype, Events, {
+	_.extend(Collection.prototype, Events, {
 
 		model : Model,
 
@@ -81,24 +93,26 @@
 
 		fetch : function() {
 
-			var thiz = this;
+			var self = this;
 
 			$.ajax({
 				url: this.url,
 				dataType : 'json',
 				success : function(data) {
-					$.each(data, function(id, model) {
-						thiz.add(id, model);
+					_(data).forEach(function(model, index) {
+						self.add(index, model);
 					});
 				}
 			});
 
+			return this;
 
 		},
 
 		add : function(id, data) {
 			// create each model and add them to the collection
 			var model = new this.model(data);
+			model.attributes = data;
 			this.models[id] = model;
 		}
 
@@ -118,13 +132,13 @@
 		this.setEv();
 	}
 
-	$.extend(View.prototype, Events, {
+	_.extend(View.prototype, Events, {
 
 		el : $('<div />'),
 
 		render : function() {},
 
-		initialize : function(){}
+		initialize : function() {}
 
 	});
 
@@ -148,14 +162,14 @@
 		if (protoProps && hasProp(protoProps, 'constructor')) {
 			child = protoProps.constructor;
 		} else {
-			child = function(){ return parent.apply(this, arguments); };
+			child = function() { return parent.apply(this, arguments); };
 		}
 
 		var Surrogate = function(){ this.constructor = child; };
 		Surrogate.prototype = parent.prototype;
 		child.prototype = new Surrogate;
 
-		if (protoProps) $.extend(child.prototype, protoProps);
+		if (protoProps) _.extend(child.prototype, protoProps);
 
 		child.__super__ = parent.prototype;
 
@@ -167,4 +181,4 @@
 	Model.extend = Collection.extend = View.extend = extend;
 
 
-})(window, document, jQuery);
+})(window, document);

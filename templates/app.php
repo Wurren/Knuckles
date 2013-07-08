@@ -14,8 +14,8 @@
 
 
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.8.3/jquery.min.js"></script>
+<script src="js/lodash.js"></script>
 <script src="src/knuckles.js"></script>
-
 <script type="text/javascript">
 	
 	var me = Knuckles.View.extend({
