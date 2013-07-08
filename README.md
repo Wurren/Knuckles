@@ -18,12 +18,19 @@ Knuckles.js is not another JS Framework, its just a tool im using to learn how t
 - Built Relationship similar to Backbone between Models and Collections.
 - Collections Fetch Method gets JSON Data from resource and Creates Models.
 
+**July 8th 2013**
+
+- Removed jQuery as a dependency. Replaced with [lodash](http://lodash.com/).
+- Added attributes key to Models
+- Added Get and Set methods to Models 
 
 
 ##Todo's
 
-*As of March 5th, 2013*
+~~*As of March 5th, 2013*~~
+*As of July 8th, 2013*
 
+- RESTFUL methods for saving and updating model attributes
 - Build a Basic Router
 - Bring Relationships between View & Collections
 - Comment out the extender 
