@@ -2,3 +2,4 @@ vendor
 composer.lock
 gem.lock
 thumbs.db
+.DS_Store
