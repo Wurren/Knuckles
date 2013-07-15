@@ -87,6 +87,8 @@
 
 		models : {},
 
+		collection : {},
+
 		initialize: function(){},
 
 		url : false,
@@ -95,7 +97,7 @@
 
 			var self = this;
 
-			$.ajax({
+			var xhr = $.ajax({
 				url: this.url,
 				dataType : 'json',
 				success : function(data) {
@@ -105,7 +107,7 @@
 				}
 			});
 
-			return this;
+			return xhr;
 
 		},
 
@@ -135,6 +137,8 @@
 	_.extend(View.prototype, Events, {
 
 		el : $('<div />'),
+
+		model : false,
 
 		render : function() {},
 

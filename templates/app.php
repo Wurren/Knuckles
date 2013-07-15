@@ -18,32 +18,6 @@
 <script src="src/knuckles.js"></script>
 <script type="text/javascript">
 	
-	var me = Knuckles.View.extend({
-
-		initialize : function () {
-			//console.log('hello world');
-		},
-
-		render : function() {
-			var me = $('<div />').addClass('me').text('Hello World!');
-			var text = this.el.append(me);
-			$('body').append(text);
-		},
-
-		events : {
-			"click .me" : "alertMe"
-		},
-
-		alertMe : function() {
-			alert('OMG!');
-			console.log('Event Fired!');
-		}
-
-	});
-
-	var homeView = new me().render();
-
-
 	var user = Knuckles.Model.extend({
 		defaults : {
 			'Name' : 'Username'
@@ -55,8 +29,23 @@
 		model : user
 	});
 
+	var userCollection = new users();
 
-	var dash = new users().fetch();
+	var userView = Knuckles.View.extend({
+		collection : userCollection,
+		render : function() {
+			userCollection.fetch().then(this.list);
+		},
+		list : function() {
+			console.log(this.collection);
+			_.each(this.collection.models, function(item, index) {
+				var name = $('<div />').text(item.username);
+				name.appendTo('body');
+			});	
+		}
+	});
+
+	var homeView = new userView().render();
 
 
 </script>
