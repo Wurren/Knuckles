@@ -1,5 +1,14 @@
-vendor
-composer.lock
-gem.lock
-thumbs.db
+# Logs
+logs
+*.log
+
+# Runtime data
+pids
+*.pid
+*.seed
+
+# Dependency directory
+node_modules
+bower_components
+
 .DS_Store

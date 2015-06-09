@@ -1,0 +1,80 @@
+<!doctype html>
+<!--[if lt IE 7]> <html class="no-js lt-ie9 lt-ie8 lt-ie7 oldie" lang="en"> <![endif]-->
+<!--[if IE 7]>    <html class="no-js lt-ie9 lt-ie8 oldie" lang="en"> <![endif]-->
+<!--[if IE 8]>    <html class="no-js lt-ie9 oldie" lang="en"> <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en"> <!--<![endif]-->
+<head>
+	<meta charset="utf-8">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+	<title>Knuckles</title>
+	<meta name="description" content="">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+
+<div class="box">
+	<h2>Testing</h2>
+</div>
+
+<script src="//ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
+<script src="/bower_components/lodash/dist/lodash.min.js"></script>
+<script src="/dist/knuckles.min.js"></script>
+<script type="text/javascript">
+	
+	var user = Knuckles.Model.extend({
+		initialize: function() {
+			console.log(this.get('name'));
+		}
+	});
+
+	var users = Knuckles.Collection.extend({
+		url: 'http://jsonplaceholder.typicode.com/users',
+		model: user,
+	});
+
+	var userCollection = new users();
+
+	var userView =  Knuckles.View.extend({
+		el: 'ul',
+		events: {
+			'click li' 		: 'toggle',
+			'click .remove' : 'remove'
+		},
+		template: _.template($('#user').html()),
+		render: function() {
+			this.$el.html(_.template($('#user').html(), this.model.attributes));
+			return this;
+		},
+		toggle: function(e) {
+			$(e.currentTarget).css({ "font-size" : "+=10px" })
+		}
+	});
+
+	var usersView =  Knuckles.View.extend({
+		initialize: function() {
+			this.collection.on('synched', $.proxy(this.list, this));
+			this.collection.fetch();
+		},
+		list: function() {
+			var self = this;
+			_.each(this.collection.models, function(item, index) {
+				var view = new userView({ model: item }).render();
+				self.$el.append(view.$el);
+			});
+			self.$el.appendTo('body');
+		}
+	});
+
+	new usersView({ collection: userCollection }).render();
+
+</script>
+
+<script id="user" type="text/x-handlebars-template">
+	<li><strong><%= name %></strong></li>
+	<li><em><%= username %></em></li>
+	<li><a href="mailto:<%= email %>"><%= email %></a></li>
+	<li><button class="remove">Remove</button></li>
+</script>
+
+</body>
+</html>

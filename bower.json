@@ -1,0 +1,6 @@
+{
+    "name": "knuckles",
+    "dependencies" : {
+        "lodash" : "*"
+    }
+}

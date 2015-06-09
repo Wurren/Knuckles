@@ -13,176 +13,212 @@
 ;(function(window, document, undefined){
 
 
-	var root = this,
-		Knuckles = root.Knuckles = {};
+    var  root      = this,
+        Knuckles  = root.Knuckles = {};
 
 
-	/*
-	|--------------------------------------------------------------------------
-	| EVENTS
-	|--------------------------------------------------------------------------
-	*/
+    /*
+    |--------------------------------------------------------------------------
+    | EVENTS
+    |--------------------------------------------------------------------------
+    */
 
-	var Events = Knuckles.Events =  {
+    var Events = Knuckles.Events =  {
 
-		events : {},
+        events: {},
 
-		setEv : function() {
-			var self = this;
-			$.each(this.events, function(key, val) { 
-			  var params = key.split(" ");
-			  $(self.el).on(params[0], params[1], self[val]);
-			});
-		}
+        listen: function() {
+            var self = this;
+            _.forIn(this.events, function(val, key) { 
+                var params = key.split(" ");
+                $(self.$el).on(params[0], params[1], $.proxy(self[val], self));
+            });
+        },
 
-	};
+        unlisten: function() {
+            var self = this;
+            _.forIn(this.events, function(val, key) { 
+                var params = key.split(" ");
+                $(self.$el).undelegate(params[0], params[1], function(e) { console.log(e) });
+            });
+        },
 
+        on: function(event, cb) {
+            $(this).on(event, cb);
+        },
 
+        off: function(event, cb) {
+            $(this).off(event, cb);
+        },
 
-	/*
-	|--------------------------------------------------------------------------
-	| MODEL
-	|--------------------------------------------------------------------------
-	*/
+        trigger: function(event) {
+            $(this).trigger(event);
+        }
 
-	var Model = Knuckles.Model = function() {
-		this.initialize();
-		this.setEv();
-	}
-
-	_.extend(Model.prototype, Events, {
-
-		attributes : {},
-
-		initialize: function(){},
-
-		get : function(key) {
-			return this.attributes[key];
-		},
-
-		set : function(key, value) {
-			return this.attributes[key] = value;
-			// send ajax REST update
-			// transmit data updated event
-		}
-
-	});
-
-
-	/*
-	|--------------------------------------------------------------------------
-	| COLLECTION
-	|--------------------------------------------------------------------------
-	*/
-
-
-	var Collection = Knuckles.Collection = function(options) {
-		this.initialize();
-		this.setEv();
-	}
-
-	_.extend(Collection.prototype, Events, {
-
-		model : Model,
-
-		models : {},
-
-		collection : {},
-
-		initialize: function(){},
-
-		url : false,
-
-		fetch : function() {
-
-			var self = this;
-
-			var xhr = $.ajax({
-				url: this.url,
-				dataType : 'json',
-				success : function(data) {
-					_(data).forEach(function(model, index) {
-						self.add(index, model);
-					});
-				}
-			});
-
-			return xhr;
-
-		},
-
-		add : function(id, data) {
-			// create each model and add them to the collection
-			var model = new this.model(data);
-			model.attributes = data;
-			this.models[id] = model;
-		}
-
-	});
+    };
 
 
 
-	/*
-	|--------------------------------------------------------------------------
-	| VIEW
-	|--------------------------------------------------------------------------
-	*/
+    /*
+    |--------------------------------------------------------------------------
+    | MODEL
+    |--------------------------------------------------------------------------
+    */
+
+    var Model = Knuckles.Model = function(attributes) {
+        this.attributes = attributes;
+        _.assign(this.attributes, this.defaults);
+        this.listen();
+        this.initialize.apply(this, arguments);
+    }
+
+    _.extend(Model.prototype, Events, {
+
+        defaults: {},
+
+        attributes: {},
+
+        initialize: function(){},
+
+        get: function(key) {
+            return this.attributes[key];
+        },
+
+        set: function(key, value) {
+            return this.attributes[key] = value;
+        }
+
+    });
 
 
-	var View = Knuckles.View = function() {
-		this.initialize();
-		this.setEv();
-	}
-
-	_.extend(View.prototype, Events, {
-
-		el : $('<div />'),
-
-		model : false,
-
-		render : function() {},
-
-		initialize : function() {}
-
-	});
+    /*
+    |--------------------------------------------------------------------------
+    | COLLECTION
+    |--------------------------------------------------------------------------
+    */
 
 
+    var Collection = Knuckles.Collection = function(options) {
+        _.assign(this, options);
+        this.listen();
+        this.initialize.apply(this, arguments);
+    }
 
-	/*
-	|--------------------------------------------------------------------------
-	| EXTENDER
-	|--------------------------------------------------------------------------
-	*/
+    _.extend(Collection.prototype, Events, {
+
+        model: Model,
+
+        models: [],
+
+        initialize: function(){},
+
+        url: false,
+
+        fetch: function(cb) {
+
+            var self = this;
+
+            var xhr = $.ajax({
+                url: this.url,
+                dataType : 'json',
+                success : function(data) {
+                    self.addCollection(data);
+                    self.trigger('synched');
+                }
+            });
+
+            return xhr;
+
+        },
+
+        addCollection: function(data) {
+            var self = this;
+            _.each(data, function(item, index) {
+                self.add(item);
+            });
+        },
+
+        add: function(item) {
+            this.models.push(new this.model(item));
+        }
+
+    });
 
 
-	var extend = function(protoProps) {
 
-		var parent = this,
-			child,
-			hasProp = function(obj, key) {
-				return hasOwnProperty.call(obj, key);
-			};
-
-		if (protoProps && hasProp(protoProps, 'constructor')) {
-			child = protoProps.constructor;
-		} else {
-			child = function() { return parent.apply(this, arguments); };
-		}
-
-		var Surrogate = function(){ this.constructor = child; };
-		Surrogate.prototype = parent.prototype;
-		child.prototype = new Surrogate;
-
-		if (protoProps) _.extend(child.prototype, protoProps);
-
-		child.__super__ = parent.prototype;
-
-		return child;
-
-	};
+    /*
+    |--------------------------------------------------------------------------
+    | VIEW
+    |--------------------------------------------------------------------------
+    */
 
 
-	Model.extend = Collection.extend = View.extend = extend;
+    var View = Knuckles.View = function(options) {
+        _.assign(this, options);
+        this.setEl();
+        this.listen();
+        this.initialize.apply(this, arguments);
+    }
+
+    _.extend(View.prototype, Events, {
+
+        el: 'div',
+
+        model: false,
+
+        render: function() {},
+
+        initialize: function() {},
+
+        setEl: function() {
+            this.$el = $('<' + this.el + ' />');
+        },
+
+        remove: function() {
+            this.$el.remove();
+            this.unlisten();
+            return this;
+        }
+
+    });
+
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | EXTENDER
+    |--------------------------------------------------------------------------
+    */
+
+
+    var extend = function(protoProps) {
+
+        var  parent = this,
+            child,
+            hasProp = function(obj, key) {
+                return hasOwnProperty.call(obj, key);
+            };
+
+        if (protoProps && hasProp(protoProps, 'constructor')) {
+            child = protoProps.constructor;
+        } else {
+            child = function() { return parent.apply(this, arguments); };
+        }
+
+        var Surrogate = function(){ this.constructor = child; };
+        Surrogate.prototype = parent.prototype;
+        child.prototype = new Surrogate;
+
+        if (protoProps) _.extend(child.prototype, protoProps);
+
+        child.__super__ = parent.prototype;
+
+        return child;
+
+    };
+
+
+    Model.extend = Collection.extend = View.extend = extend;
 
 
 })(window, document);

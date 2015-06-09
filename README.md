@@ -12,6 +12,11 @@ Knuckles.js is not another JS Framework, its just a tool im using to learn how t
 
 ## Changelog
 
+**June 9th 2015**
+
+- Actual updated to code
+- Will add info soon
+
 
 **July 8th 2013**
 
