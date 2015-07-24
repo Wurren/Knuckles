@@ -12,6 +12,12 @@ Knuckles.js is not another JS Framework, its just a tool im using to learn how t
 
 ## Changelog
 
+**July 24th 2015**
+
+- Cleaned up code
+- Minified dist js
+- user document.getElementById instead of jQuery for templates
+
 **June 9th 2015**
 
 - Actual updated to code
