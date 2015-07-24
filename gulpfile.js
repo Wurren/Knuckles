@@ -33,7 +33,7 @@ gulp.task('uglify', function() {
         }))
         .pipe(concat('knuckles.js'))
         .pipe(rename('knuckles.min.js'))
-        //.pipe(uglify())
+        .pipe(uglify())
         .pipe(gulp.dest('dist'))
         .pipe(notify({ message: 'JS - Done!' }))
 });
